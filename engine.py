@@ -4,7 +4,7 @@ from diffusers import StableDiffusionPipeline
 
 def load_model(model_name="runwayml/stable-diffusion-v1-5", device=None):
     """
-    Load Stable Diffusion model with GPU/CPU fallback (CPU for Streamlit Cloud).
+    Load Stable Diffusion model with CPU fallback for Streamlit Cloud.
     """
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
