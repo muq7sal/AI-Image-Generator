@@ -1,19 +1,13 @@
-# Core
-streamlit
-requests
-Pillow
-streamlit>=1.18.0
-torch>=2.0.0
-diffusers>=0.20.0
-transformers>=4.30.0
-accelerate>=0.18.0
-safetensors
-pillow
-ftfy
-regex
-
-# optional helpful
-xformers
+streamlit>=1.22.0
+requests>=2.31.0
+Pillow>=10.0.0
+torch>=2.1.0
+diffusers>=0.30.0
+transformers>=4.34.0
+safetensors>=0.3.0
+accelerate>=0.20.0
+ftfy>=6.1.1
+regex>=2025.10.15
 
 
 
