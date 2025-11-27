@@ -6,15 +6,15 @@ from diffusers import StableDiffusionPipeline
 from utils import save_image_with_metadata, apply_watermark
 
 st.set_page_config(page_title="AI Image Generator", layout="wide")
-st.title("🖼️ AI-Powered Text-to-Image Generator (CPU Friendly)")
+st.title("🖼️ AI-Powered Text-to-Image Generator (CPU-Friendly)")
 
-# ---------------- Load Light Model ----------------
+# ---------------- Load Local Pre-downloaded Model ----------------
 @st.cache_resource
 def load_model():
-    model_id = "runwayml/stable-diffusion-lite"  # lightweight CPU-friendly model
-    device = "cpu"  # Force CPU for Streamlit Cloud
+    model_path = "./model"  # local folder
+    device = "cpu"           # CPU only for Streamlit Cloud
     pipe = StableDiffusionPipeline.from_pretrained(
-        model_id,
+        model_path,
         torch_dtype=torch.float32,
         safety_checker=None
     )
@@ -25,8 +25,9 @@ pipe, device = load_model()
 
 # ---------------- User Inputs ----------------
 prompt = st.text_input("Enter Prompt", "a futuristic city at sunset, highly detailed")
+negative_prompt = st.text_input("Negative Prompt (optional)", "lowres, blurry, deformed")
 num_images = st.slider("Number of Images", 1, 2, 1)
-steps = st.slider("Inference Steps", 5, 15, 10)  # keep low for CPU
+steps = st.slider("Inference Steps", 5, 15, 10)  # CPU-friendly
 guidance = st.slider("Guidance Scale", 1.0, 10.0, 7.5)
 
 style = st.selectbox("Select Style", ["None", "Photorealistic", "Cartoon", "Artistic", "Van Gogh"])
@@ -48,6 +49,7 @@ if st.button("Generate Images"):
         with st.spinner("Generating... Please wait..."):
             result = pipe(
                 prompt=final_prompt,
+                negative_prompt=negative_prompt,
                 num_inference_steps=steps,
                 guidance_scale=guidance,
                 num_images_per_prompt=num_images
@@ -64,6 +66,7 @@ if st.button("Generate Images"):
                 filename = f"outputs/output_{timestamp}_{idx}.png"
                 metadata = {
                     "prompt": prompt,
+                    "negative_prompt": negative_prompt,
                     "style": style,
                     "inference_steps": steps,
                     "guidance_scale": guidance,
