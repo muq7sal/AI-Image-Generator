@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 import csv
 
-# Page setup
+# Streamlit page config
 st.set_page_config(page_title="AI-Powered Image Generator", layout="wide")
 st.title("AI-Powered Text-to-Image Generator")
 
@@ -23,7 +23,7 @@ pipeline = get_pipeline()
 
 # User inputs
 prompt = st.text_area("Enter your prompt:", height=100)
-num_images = st.slider("Number of images", 1, 2, 1)  # Keep 1–2 for Cloud speed
+num_images = st.slider("Number of images", 1, 2, 1)  # Keep 1–2 for CPU speed
 guidance_scale = st.slider("Guidance scale (creativity control)", 1.0, 20.0, 7.5)
 
 # Generate Images
