@@ -1,12 +1,12 @@
-# CPU-only PyTorch for Streamlit Cloud
-torch==2.2.0+cpu
-torchvision==0.17.1+cpu
-torchaudio==2.2.0
+# CPU-only PyTorch (Streamlit Cloud safe)
+torch==2.2.0+cpu --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
+torchvision==0.17.1+cpu --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
+torchaudio==2.2.0 --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
 
 # Diffusion model
-diffusers
-transformers
-accelerate
+diffusers==0.22.1
+transformers==4.35.0
+accelerate==0.23.0
 scipy
 ftfy
 safetensors
@@ -14,4 +14,3 @@ safetensors
 # Web interface
 streamlit
 pillow
-
