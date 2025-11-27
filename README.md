@@ -1,15 +1,26 @@
 # 🖼️ AI-Powered Text-to-Image Generator
 
-This project is a text-to-image generator for ML Internship at Talrn.com.  
-It uses a **pre-downloaded lightweight Stable Diffusion model** to run on **Streamlit free CPU plan**.
+# AI Text→Image Generator (Stable Diffusion v1.5)
 
-
-## Features
-- Text-to-Image generation
-- Styles: Photorealistic, Cartoon, Artistic, Van Gogh
-- Adjustable number of images, steps, guidance
+## What this is
+A local text-to-image generator using Stable Diffusion (open-source) with a simple Streamlit UI.
+Features:
+- Multi-image generation
 - Negative prompts
-- Watermark added for ethical AI use
-- Save images with metadata
-- Works fully on CPU (Streamlit free plan)
-- Streamlit web interface for easy usage
+- GPU and CPU fallback
+- Watermarking and simple prompt filtering
+- Saves images with metadata
+
+## Files
+- `app.py` — Streamlit app
+- `engine.py` — model loader & generator
+- `utils.py` — save / watermark / filter utilities
+- `requirements.txt`
+- `sample_outputs/` — generated images (created at runtime)
+
+## Setup (Linux/macOS/WSL)
+1. Create venv and activate:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+
