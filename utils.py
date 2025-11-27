@@ -23,8 +23,7 @@ def save_images_with_metadata(images: List[Image.Image], prompt: str, negative_p
         filenames = [f"image_{i+1}.png" for i in range(len(images))]
 
     for img, fname in zip(images, filenames):
-        path = os.path.join(folder, fname)
-        img.save(path)
+        img.save(os.path.join(folder, fname))
 
     meta = {
         "prompt": prompt,
@@ -33,40 +32,29 @@ def save_images_with_metadata(images: List[Image.Image], prompt: str, negative_p
         "timestamp": datetime.now().isoformat(),
         "file_list": filenames
     }
-    with open(os.path.join(folder, "metadata.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(folder, "metadata.json"), "w") as f:
         json.dump(meta, f, indent=2)
 
     return folder
 
-def watermark_image(pil_img: Image.Image, text: str = "AI GENERATED", opacity: int = 150) -> Image.Image:
-    """Add a bottom-right watermark text onto a PIL image. Returns new PIL image (RGB)."""
+def watermark_image(pil_img: Image.Image, text: str = "AI GENERATED") -> Image.Image:
     img = pil_img.convert("RGBA")
-    txt_layer = Image.new("RGBA", img.size, (255, 255, 255, 0))
+    txt_layer = Image.new("RGBA", img.size, (255,255,255,0))
     draw = ImageDraw.Draw(txt_layer)
-    fontsize = max(12, img.size[0] // 30)
+    fontsize = max(12, img.size[0]//30)
     try:
         font = ImageFont.truetype("DejaVuSans-Bold.ttf", fontsize)
-    except Exception:
+    except:
         font = ImageFont.load_default()
     text_w, text_h = draw.textsize(text, font=font)
-    padding = 10
-    x = img.size[0] - text_w - padding
-    y = img.size[1] - text_h - padding
-    draw.text((x, y), text, fill=(255,255,255,opacity), font=font)
-    combined = Image.alpha_composite(img, txt_layer)
-    return combined.convert("RGB")
+    x, y = img.size[0]-text_w-10, img.size[1]-text_h-10
+    draw.text((x,y), text, fill=(255,255,255,150), font=font)
+    return Image.alpha_composite(img, txt_layer).convert("RGB")
 
-# Very small blacklist filter - extend for production
-BANNED_KEYWORDS = {
-    "porn", "rape", "child", "cp", "bestiality", "nsfw", "bomb"
-}
-
+BANNED_KEYWORDS = {"porn", "rape", "child", "cp", "bestiality", "nsfw", "bomb"}
 def is_prompt_allowed(prompt_text: str) -> (bool, str):
     lower = prompt_text.lower()
     for bad in BANNED_KEYWORDS:
         if bad in lower:
             return False, f"Prompt contains banned keyword: {bad}"
     return True, ""
-
-
-
