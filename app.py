@@ -11,6 +11,7 @@ st.set_page_config(page_title="AI Text→Image Generator", layout="centered")
 st.title("AI Text → Image Generator (HF API)")
 
 # --- Hugging Face API token ---
+HF_TOKEN = st.secrets["HF_API_TOKEN"]
 HF_TOKEN = st.secrets.get("HF_API_TOKEN", "")
 API_URL = "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
