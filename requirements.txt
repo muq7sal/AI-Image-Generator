@@ -1,4 +1,7 @@
 # Core
+streamlit
+requests
+Pillow
 streamlit>=1.18.0
 torch>=2.0.0
 diffusers>=0.20.0
