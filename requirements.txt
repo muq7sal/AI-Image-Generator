@@ -1,16 +1,11 @@
-# ----- PyTorch CPU (Streamlit Cloud Compatible) -----
-torch==2.0.1+cpu --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
-torchvision==0.15.2+cpu --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
-torchaudio==2.0.2 --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
-
-# ----- Diffusion & HuggingFace -----
-diffusers==0.19.3
-transformers==4.31.0
-accelerate==0.21.0
-safetensors
-ftfy
+torch
+torchvision
+torchaudio
+diffusers
+transformers
+accelerate
 scipy
-
-# ----- UI -----
+ftfy
+safetensors
 streamlit
 pillow
