@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 import json
 
 def save_image_with_metadata(image, filepath, metadata):
-    """Save image and metadata"""
+    """Save image and metadata as JSON"""
     image.save(filepath, "PNG")
     json_path = filepath.replace(".png", ".json")
     with open(json_path, "w") as f:
@@ -20,4 +20,5 @@ def apply_watermark(image, text="AI Generated"):
         font = ImageFont.load_default()
     draw.text((10, height - fontsize - 10), text, fill=(255, 255, 255), font=font)
     return watermark_image
+
 
