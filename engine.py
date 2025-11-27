@@ -2,36 +2,45 @@
 import torch
 from diffusers import StableDiffusionPipeline
 from typing import List, Optional
+from PIL import Image
 
 DEFAULT_MODEL = "runwayml/stable-diffusion-v1-5"
 
 class TextToImageEngine:
-    def __init__(self, model_id: str = DEFAULT_MODEL, device: Optional[str] = None):
-        # Decide device
+    def __init__(self, model_id: str = DEFAULT_MODEL, device: Optional[str] = None, hf_token: Optional[str] = None):
+        """
+        Initialize Stable Diffusion pipeline
+        Args:
+            model_id: Hugging Face model ID
+            device: "cuda", "cpu", or None (auto-detect)
+            hf_token: Hugging Face API token
+        """
+        # Detect device
         if device:
             self.device = device
         else:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        # dtype: use float16 on CUDA for speed/memory; float32 on CPU
+        # dtype: float16 for GPU, float32 for CPU
         torch_dtype = torch.float16 if self.device == "cuda" else torch.float32
 
-        # load pipeline
+        # Load Stable Diffusion pipeline
         self.pipe = StableDiffusionPipeline.from_pretrained(
             model_id,
             torch_dtype=torch_dtype,
-            safety_checker=None,   # optional: you can add a safety checker later
+            safety_checker=None,       # optional: can add later
+            use_auth_token=hf_token    # <--- important: token for Hugging Face
         )
 
-        # move to device and optimize memory usage
+        # Move pipeline to device
         self.pipe = self.pipe.to(self.device)
-        # reduce memory usage on GPU
+
+        # Optimize memory on GPU
         if self.device == "cuda":
             try:
                 self.pipe.enable_attention_slicing()
             except Exception:
                 pass
-            # try xformers if installed
             try:
                 self.pipe.enable_xformers_memory_efficient_attention()
             except Exception:
@@ -47,14 +56,26 @@ class TextToImageEngine:
         height: int = 512,
         width: int = 512,
         seed: Optional[int] = None
-    ) -> List:
-        """Generate images from a prompt. Returns list of PIL images."""
+    ) -> List[Image.Image]:
+        """
+        Generate images from prompt
+        Args:
+            prompt: Text prompt
+            negative_prompt: Optional negative prompt to filter results
+            num_images: Number of images to generate
+            guidance_scale: How strongly the model follows prompt
+            num_inference_steps: Diffusion steps
+            height: Image height
+            width: Image width
+            seed: Optional random seed for reproducibility
+        Returns:
+            List of PIL images
+        """
         generator = None
         if seed is not None:
-            # device-specific generator
             generator = torch.Generator(device=self.device).manual_seed(seed)
 
-        out = self.pipe(
+        result = self.pipe(
             prompt=prompt,
             negative_prompt=negative_prompt,
             num_images_per_prompt=num_images,
@@ -62,6 +83,7 @@ class TextToImageEngine:
             num_inference_steps=num_inference_steps,
             height=height,
             width=width,
-            generator=generator,
+            generator=generator
         )
-        return out.images
+
+        return result.images
