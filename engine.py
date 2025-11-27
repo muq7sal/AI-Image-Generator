@@ -7,30 +7,46 @@ DEFAULT_MODEL = "runwayml/stable-diffusion-v1-5"
 
 class TextToImageEngine:
     def __init__(self, model_id: str = DEFAULT_MODEL, device: Optional[str] = None):
-        # Auto detect device
+        # detect device
         if device:
             self.device = device
         else:
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        # dtype
         torch_dtype = torch.float16 if self.device == "cuda" else torch.float32
 
         # load model
         self.pipe = StableDiffusionPipeline.from_pretrained(
             model_id, torch_dtype=torch_dtype
-        )
+        ).to(self.device)
 
-        # Move to device
-        self.pipe = self.pipe.to(self.device)
-
-        # Optimize for memory
+        # memory optimizations
         if self.device == "cuda":
             self.pipe.enable_attention_slicing()
             try:
                 self.pipe.enable_xformers_memory_efficient_attention()
             except Exception:
                 pass
+
+    def suggest_fast_settings(self):
+        """Returns recommended width, height, steps, num_images based on device/VRAM"""
+        if self.device == "cpu":
+            return {"width": 256, "height": 256, "steps": 15, "num_images": 1}
+        else:
+            # GPU, check memory
+            try:
+                import pynvml
+                pynvml.nvmlInit()
+                handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+                meminfo = pynvml.nvmlDeviceGetMemoryInfo(handle)
+                total_gb = meminfo.total / 1024**3
+            except Exception:
+                total_gb = 8  # fallback
+
+            if total_gb < 6:
+                return {"width": 512, "height": 512, "steps": 20, "num_images": 1}
+            else:
+                return {"width": 768, "height": 768, "steps": 30, "num_images": 2}
 
     def generate(
         self,
@@ -44,12 +60,10 @@ class TextToImageEngine:
         seed: Optional[int] = None,
         progress_callback=None
     ) -> List:
-        # Seed for reproducibility
         generator = None
         if seed is not None:
             generator = torch.Generator(device=self.device).manual_seed(seed)
 
-        # If progress_callback provided, pass to pipeline
         if progress_callback:
             result = self.pipe(
                 prompt=prompt,
