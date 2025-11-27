@@ -7,16 +7,11 @@ from PIL import Image
 DEFAULT_MODEL = "runwayml/stable-diffusion-v1-5"
 
 class TextToImageEngine:
-    def __init__(self, model_id: str = DEFAULT_MODEL, device: Optional[str] = None, hf_token: Optional[str] = None):
-        # Detect device
-        if device:
-            self.device = device
-        else:
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
-
+    def __init__(self, hf_token: str, model_id: str = DEFAULT_MODEL, device: Optional[str] = None):
+        self.device = device if device else ("cuda" if torch.cuda.is_available() else "cpu")
         torch_dtype = torch.float16 if self.device == "cuda" else torch.float32
 
-        # Load Stable Diffusion pipeline
+        # Load the pipeline
         self.pipe = StableDiffusionPipeline.from_pretrained(
             model_id,
             torch_dtype=torch_dtype,
@@ -25,12 +20,12 @@ class TextToImageEngine:
         )
         self.pipe = self.pipe.to(self.device)
 
-        # GPU optimizations
         if self.device == "cuda":
-            try: self.pipe.enable_attention_slicing()
-            except: pass
-            try: self.pipe.enable_xformers_memory_efficient_attention()
-            except: pass
+            try:
+                self.pipe.enable_attention_slicing()
+                self.pipe.enable_xformers_memory_efficient_attention()
+            except Exception:
+                pass
 
     def generate(
         self,
@@ -38,15 +33,12 @@ class TextToImageEngine:
         negative_prompt: Optional[str] = None,
         num_images: int = 1,
         guidance_scale: float = 7.5,
-        num_inference_steps: int = 30,
+        num_inference_steps: int = 25,
         height: int = 512,
         width: int = 512,
         seed: Optional[int] = None
     ) -> List[Image.Image]:
-        generator = None
-        if seed is not None:
-            generator = torch.Generator(device=self.device).manual_seed(seed)
-
+        generator = torch.Generator(device=self.device).manual_seed(seed) if seed else None
         result = self.pipe(
             prompt=prompt,
             negative_prompt=negative_prompt,
