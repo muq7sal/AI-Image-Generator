@@ -1,11 +1,17 @@
+# CPU-only PyTorch for Streamlit Cloud
 torch==2.2.0+cpu
 torchvision==0.17.1+cpu
 torchaudio==2.2.0
+
+# Diffusion model
 diffusers
 transformers
 accelerate
 scipy
 ftfy
 safetensors
+
+# Web interface
 streamlit
 pillow
+
